@@ -1,7 +1,12 @@
 spring:
   batch:
-    job:
-      names:
+    jdbc:
+      initialize-schema: always
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: false
 
   chat-db:
     datasource:
@@ -15,3 +20,8 @@ spring:
       username: ayojnhbvgmevlf
       password: 8f42e95a5a39b42b3c33397e5f49c051ec85e19877f11dea06b7a6f62b11f845
       driver-class-name: org.postgresql.Driver
+
+
+logging:
+  level:
+    org.hibernate.type.descriptor.sql: trace
