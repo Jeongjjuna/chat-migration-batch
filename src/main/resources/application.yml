@@ -1,0 +1,17 @@
+spring:
+  batch:
+    job:
+      names:
+
+  chat-db:
+    datasource:
+      jdbc-url: jdbc:postgresql://localhost:5432/chat_db
+      username: postgres
+      password: test_pw
+      driver-class-name: org.postgresql.Driver
+  core-db:
+    datasource:
+      jdbc-url: jdbc:postgresql://ec2-107-21-67-46.compute-1.amazonaws.com:5432/dd08dor6o9rvlm
+      username: ayojnhbvgmevlf
+      password: 8f42e95a5a39b42b3c33397e5f49c051ec85e19877f11dea06b7a6f62b11f845
+      driver-class-name: org.postgresql.Driver
