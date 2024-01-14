@@ -2,7 +2,9 @@ package jeongjihun.chatmigrationbatch.config;
 
 import jakarta.persistence.EntityManagerFactory;
 import jeongjihun.chatmigrationbatch.chatdb.entity.Chat;
+import jeongjihun.chatmigrationbatch.chatdb.entity.ChatLike;
 import jeongjihun.chatmigrationbatch.coredb.entity.CoreChat;
+import jeongjihun.chatmigrationbatch.coredb.entity.CoreChatLike;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -25,7 +27,10 @@ import java.util.Collections;
 public class MigrationJobConfig {
 
     private final int CHUNK_SIZE = 10;
-    private final LocalDateTime max_date;
+    private final LocalDateTime ChatMaxDate;
+    private final LocalDateTime chatLikeMaxDate;
+
+
     private final EntityManagerFactory coreEntityManagerFactory; // CLOUD DB 용
     private final EntityManagerFactory chatEntityManagerFactory; // 로컬 DB 용
 
@@ -38,39 +43,80 @@ public class MigrationJobConfig {
         // 마이그레이션할 경계 시간값
         String dateString = "2024-01-13 12:19:40.364181";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
-        this.max_date = LocalDateTime.parse(dateString, formatter);
+        this.ChatMaxDate = LocalDateTime.parse(dateString, formatter);
+
+        dateString = "2024-01-13 13:51:45.122983";
+        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
+        this.chatLikeMaxDate = LocalDateTime.parse(dateString, formatter);
     }
 
     @Bean
     public Job migrationJob(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager) {
         return new JobBuilder("migrationJob", jobRepository)
-                .start(migrationStep(jobRepository, platformTransactionManager))
+                .start(chatMigrationStep(jobRepository, platformTransactionManager))
+                .next(chatLikeMigrationStep(jobRepository, platformTransactionManager))
                 .build();
     }
 
     @Bean
-    public Step migrationStep(JobRepository jobRepository, @Qualifier("transactionManager2") PlatformTransactionManager platformTransactionManager) {
-        return new StepBuilder("migrationStep", jobRepository)
+    public Step chatLikeMigrationStep(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager) {
+        return new StepBuilder("chatLikeMigrationStep", jobRepository)
+                .<CoreChatLike, ChatLike> chunk(CHUNK_SIZE, platformTransactionManager)
+                .reader(chatLikeMigrationItemReader())
+                .processor(chatLikeMigrationItemProcessor())
+                .writer(chatLikeMigrationItemWriter())
+                .build();
+    }
+
+    @Bean
+    public JpaPagingItemReader<CoreChatLike> chatLikeMigrationItemReader() {
+        return new JpaPagingItemReaderBuilder<CoreChatLike>()
+                .name("chatLike_JpaPageJob_Reader")
+                .entityManagerFactory(coreEntityManagerFactory)
+                .pageSize(CHUNK_SIZE)
+                .queryString("SELECT c FROM CoreChatLike c WHERE c.createdAt < :targetTime ORDER BY c.createdAt ASC")
+                .parameterValues(Collections.singletonMap("targetTime", chatLikeMaxDate))
+                .build();
+    }
+
+    @Bean
+    public ItemProcessor<CoreChatLike, ChatLike> chatLikeMigrationItemProcessor() {
+        return coreChatLike -> {
+            System.out.println(coreChatLike);
+            return coreChatLike.toChatLike();
+        };
+    }
+
+    @Bean
+    public JpaItemWriter<ChatLike> chatLikeMigrationItemWriter() {
+        return new JpaItemWriterBuilder<ChatLike>()
+                .entityManagerFactory(chatEntityManagerFactory)
+                .build();
+    }
+
+    @Bean
+    public Step chatMigrationStep(JobRepository jobRepository, @Qualifier("transactionManager2") PlatformTransactionManager platformTransactionManager) {
+        return new StepBuilder("chatMigrationStep", jobRepository)
                 .<CoreChat, Chat> chunk(CHUNK_SIZE, platformTransactionManager)
-                .reader(migrationItemReader())
-                .processor(migrationItemProcessor())
-                .writer(migrationItemWriter())
+                .reader(chatMigrationItemReader())
+                .processor(chatMigrationItemProcessor())
+                .writer(chatMigrationItemWriter())
                 .build();
     }
 
     @Bean
-    public JpaPagingItemReader<CoreChat> migrationItemReader() {
+    public JpaPagingItemReader<CoreChat> chatMigrationItemReader() {
         return new JpaPagingItemReaderBuilder<CoreChat>()
-                .name("JpaPageJob_Reader")
+                .name("Chat_JpaPageJob_Reader")
                 .entityManagerFactory(coreEntityManagerFactory)
                 .pageSize(CHUNK_SIZE)
                 .queryString("SELECT c FROM CoreChat c WHERE c.createdAt < :targetTime ORDER BY c.createdAt ASC")
-                .parameterValues(Collections.singletonMap("targetTime", max_date))
+                .parameterValues(Collections.singletonMap("targetTime", ChatMaxDate))
                 .build();
     }
 
     @Bean
-    public ItemProcessor<CoreChat, Chat> migrationItemProcessor() {
+    public ItemProcessor<CoreChat, Chat> chatMigrationItemProcessor() {
         return coreChat -> {
             System.out.println(coreChat);
             return coreChat.toChat();
@@ -78,7 +124,7 @@ public class MigrationJobConfig {
     }
 
     @Bean
-    public JpaItemWriter<Chat> migrationItemWriter() {
+    public JpaItemWriter<Chat> chatMigrationItemWriter() {
         return new JpaItemWriterBuilder<Chat>()
                 .entityManagerFactory(chatEntityManagerFactory)
                 .build();
