@@ -21,7 +21,7 @@ public class Chat {
     @Column(name = "sender_id")
     private Long senderId;
     @Column(name = "room_id")
-    private Long room_id;
+    private Long roomId;
     @Column(name = "content")
     private String content;
     @Column(name = "created_at")
