@@ -4,6 +4,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jeongjihun.chatmigrationbatch.coredb.entity.CoreChat;
+import jeongjihun.chatmigrationbatch.coredb.entity.CoreChatLike;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,4 +26,20 @@ public class ChatLike {
     private Long chatId;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    public boolean isSame(CoreChatLike coreChatLike) {
+        if (!this.id.equals(coreChatLike.getId())) {
+            return false;
+        }
+        if (!this.userId.equals(coreChatLike.getUserId())) {
+            return false;
+        }
+        if (!this.chatId.equals(coreChatLike.getChatId())) {
+            return false;
+        }
+        if (!this.createdAt.isEqual(coreChatLike.getCreatedAt())) {
+            return false;
+        }
+        return true;
+    }
 }

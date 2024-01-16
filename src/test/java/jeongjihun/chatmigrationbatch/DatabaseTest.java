@@ -58,7 +58,7 @@ public class DatabaseTest {
         );
     }
 
-    @DisplayName("core DB, chat DB의 chat 데이터 비교테스트")
+    @DisplayName("core DB, chat DB의 chat 데이터 정합성테스트")
     @Test
     void chat_data_equals() {
         // 최대 날짜 지정
@@ -82,6 +82,35 @@ public class DatabaseTest {
             assertThat(chatContents.size()).isEqualTo(coreChatContents.size());
             for (int idx = 0; idx < chatContents.size(); idx++) {
                 boolean result = chatContents.get(idx).isSame(coreChatContents.get(idx));
+                assertThat(result).isTrue();
+            }
+        }
+    }
+
+    @DisplayName("core DB, chat DB의 chat_like 데이터 정합성테스트")
+    @Test
+    void chat_like_data_equals() {
+        // 최대 날짜 지정
+        LocalDateTime maxDateTime = DateGenerator.convert( "2024-01-13 13:51:45.122983");
+
+        // 페이지 지정
+        int pageNumber = 0; // 페이지 번호 (0부터 시작)
+        int pageSize = 20; // 페이지 크기
+        Sort sort = Sort.by(Sort.Direction.ASC, "createdAt"); // 정렬 정보
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+
+        Page<CoreChatLike> standard = coreChatLikeRepository.findCoreChatLikeForTest(maxDateTime, pageable);
+
+        for (int pageNo = 0; pageNo < standard.getTotalPages(); pageNo++) {
+            pageable = PageRequest.of(pageNo, pageSize, sort);
+            Page<ChatLike> chatLikes = chatLikeRepository.findChatLikeForTest(maxDateTime, pageable);
+            Page<CoreChatLike> coreChatLikes = coreChatLikeRepository.findCoreChatLikeForTest(maxDateTime, pageable);
+            List<ChatLike> chatLikeContents = chatLikes.getContent();
+            List<CoreChatLike> coreChatLikeContents = coreChatLikes.getContent();
+
+            assertThat(chatLikeContents.size()).isEqualTo(coreChatLikeContents.size());
+            for (int idx = 0; idx < chatLikeContents.size(); idx++) {
+                boolean result = chatLikeContents.get(idx).isSame(coreChatLikeContents.get(idx));
                 assertThat(result).isTrue();
             }
         }
