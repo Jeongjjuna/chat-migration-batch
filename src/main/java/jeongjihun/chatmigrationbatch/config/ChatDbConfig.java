@@ -27,15 +27,15 @@ import java.util.Map;
 public class ChatDbConfig {
 
     @Primary
-    @Bean(name = "dataSource2")
+    @Bean(name = "chatDataSource")
     @ConfigurationProperties(prefix = "spring.chat-db.datasource")
     public DataSource dataSource2() {
         return DataSourceBuilder.create().type(HikariDataSource.class).build();
     }
 
     @Primary
-    @Bean(name = "entityManagerFactory2")
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory2(EntityManagerFactoryBuilder builder, @Qualifier("dataSource2") DataSource dataSource) {
+    @Bean(name = "chatEntityManagerFactory")
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory2(EntityManagerFactoryBuilder builder, @Qualifier("chatDataSource") DataSource dataSource) {
         Map<String, String> properties = new HashMap<String, String>();
 
         return builder.dataSource(dataSource)
@@ -46,8 +46,8 @@ public class ChatDbConfig {
     }
 
     @Primary
-    @Bean(name = "transactionManager2")
-    PlatformTransactionManager transactionManager2(@Qualifier("entityManagerFactory2") EntityManagerFactory entityManagerFactory) {
+    @Bean(name = "chatTransactionManager")
+    PlatformTransactionManager transactionManager2(@Qualifier("chatEntityManagerFactory") EntityManagerFactory entityManagerFactory) {
         return new JpaTransactionManager(entityManagerFactory);
     }
 }

@@ -11,6 +11,7 @@ import jeongjihun.chatmigrationbatch.coredb.CoreChatLikeRepository;
 import jeongjihun.chatmigrationbatch.coredb.CoreChatRepository;
 import jeongjihun.chatmigrationbatch.coredb.entity.CoreChat;
 import jeongjihun.chatmigrationbatch.coredb.entity.CoreChatLike;
+import jeongjihun.chatmigrationbatch.util.DateGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public class DatabaseTest {
     @Autowired
     private ChatLikeRepository chatLikeRepository;
 
-    @DisplayName("마이그레이션 정합성 테스트")
+    @DisplayName("엔티티 필드 비교 테스트")
     @Test
     void equals() {
         LocalDateTime time = LocalDateTime.now();
@@ -61,9 +62,7 @@ public class DatabaseTest {
     @Test
     void chat_data_equals() {
         // 최대 날짜 지정
-        String dateString = "2024-01-13 12:19:40.364181";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
-        LocalDateTime maxDateTime = LocalDateTime.parse(dateString, formatter);
+        LocalDateTime maxDateTime = DateGenerator.convert( "2024-01-13 12:19:40.364181");
 
         // 페이지 지정
         int pageNumber = 0; // 페이지 번호 (0부터 시작)
