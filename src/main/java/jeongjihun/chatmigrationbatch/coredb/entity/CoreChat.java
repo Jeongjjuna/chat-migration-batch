@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @Entity
@@ -30,6 +31,19 @@ public class CoreChat {
 
     public Chat toChat() {
         return new Chat(id, senderId, roomId, content, createdAt);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final CoreChat coreChat = (CoreChat) o;
+        return Objects.equals(id, coreChat.id) && Objects.equals(senderId, coreChat.senderId) && Objects.equals(roomId, coreChat.roomId) && Objects.equals(content, coreChat.content) && Objects.equals(createdAt, coreChat.createdAt);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, senderId, roomId, content, createdAt);
     }
 
     @Override
