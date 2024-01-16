@@ -1,0 +1,27 @@
+spring:
+  batch:
+    jdbc:
+      initialize-schema: always
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: false
+
+  chat-db: # 마이그레이션 할 로컬 DB
+    datasource:
+      jdbc-url: jdbc:postgresql://localhost:5432/chat_db
+      username: postgres
+      password: test_pw
+      driver-class-name: org.postgresql.Driver
+  core-db: # 데이터를 옮겨올 클라우드 DB
+    datasource:
+      jdbc-url: ${ DB_URL }
+      username: ${ DB_USERNAME }
+      password: ${ DB_PASSWORD }
+      driver-class-name: org.postgresql.Driver
+
+
+logging:
+  level:
+    org.hibernate.type.descriptor.sql: trace
