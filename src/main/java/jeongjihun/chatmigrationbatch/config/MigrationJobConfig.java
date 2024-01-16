@@ -31,7 +31,7 @@ public class MigrationJobConfig {
     private final JpaItemWriter chatLikeMigrationItemWriter;
 
     public MigrationJobConfig(
-            @Qualifier("transactionManager2") PlatformTransactionManager chatTransactionManager,
+            @Qualifier("chatTransactionManager") PlatformTransactionManager chatTransactionManager,
             @Qualifier("chatMigrationItemReader") JpaPagingItemReader<CoreChat>  chatMigrationItemReader,
             @Qualifier("chatLikeMigrationItemReader") JpaPagingItemReader<CoreChatLike> chatLikeMigrationItemReader,
             @Qualifier("chatMigrationItemWriter") JpaItemWriter<Chat>  chatMigrationItemWriter,

@@ -32,7 +32,7 @@ public class CoreDbConfig {
     }
 
     @Bean(name = "entityManagerFactory")
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory1(EntityManagerFactoryBuilder builder, @Qualifier("dataSource") DataSource dataSource) {
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(EntityManagerFactoryBuilder builder, @Qualifier("dataSource") DataSource dataSource) {
         Map<String, String> properties = new HashMap<String, String>();
 
         return builder.dataSource(dataSource)
@@ -43,7 +43,7 @@ public class CoreDbConfig {
     }
 
     @Bean(name = "transactionManager")
-    PlatformTransactionManager transactionManager1(@Qualifier("entityManagerFactory") EntityManagerFactory entityManagerFactory) {
+    PlatformTransactionManager transactionManager(@Qualifier("entityManagerFactory") EntityManagerFactory entityManagerFactory) {
         return new JpaTransactionManager(entityManagerFactory);
     }
 }

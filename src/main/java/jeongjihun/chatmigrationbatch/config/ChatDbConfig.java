@@ -21,8 +21,8 @@ import java.util.Map;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        entityManagerFactoryRef = "entityManagerFactory2",
-        transactionManagerRef = "transactionManager2",
+        entityManagerFactoryRef = "chatEntityManagerFactory",
+        transactionManagerRef = "chatTransactionManager",
         basePackages = {"jeongjihun.chatmigrationbatch.chatdb"}) // application.yml의 datasource에 맵핑하겠다.(사용하겠다)
 public class ChatDbConfig {
 
@@ -35,7 +35,7 @@ public class ChatDbConfig {
 
     @Primary
     @Bean(name = "chatEntityManagerFactory")
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory2(EntityManagerFactoryBuilder builder, @Qualifier("chatDataSource") DataSource dataSource) {
+    public LocalContainerEntityManagerFactoryBean chatEntityManagerFactory(EntityManagerFactoryBuilder builder, @Qualifier("chatDataSource") DataSource dataSource) {
         Map<String, String> properties = new HashMap<String, String>();
 
         return builder.dataSource(dataSource)
@@ -47,7 +47,7 @@ public class ChatDbConfig {
 
     @Primary
     @Bean(name = "chatTransactionManager")
-    PlatformTransactionManager transactionManager2(@Qualifier("chatEntityManagerFactory") EntityManagerFactory entityManagerFactory) {
+    PlatformTransactionManager chatTransactionManager(@Qualifier("chatEntityManagerFactory") EntityManagerFactory entityManagerFactory) {
         return new JpaTransactionManager(entityManagerFactory);
     }
 }
